@@ -1,26 +1,30 @@
-import { Medication } from 'src/medication/medication.entity';
+import { Medication } from 'src/medication/medications.entity';
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { DroneModelEnum, DroneStatusEnum } from './utils/enums';
+import { IsEnum } from 'class-validator';
 
 @Entity()
 export class Drone {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  serialNumber: string;
 
   @Column()
-  name: string;
-
-  @Column() //TODO: change to use geometry
-  weight: number; //TODO: change to Point later
+  @IsEnum(DroneModelEnum, { message: 'Invalid drone model' })
+  model: string;
 
   @Column()
-  code: string;
+  weightLimit: number;
 
   @Column()
-  image: string;
+  batteryCapacity: number;
 
-  @OneToMany(() => Medication, (medication) => medication.drones, {
+  @Column()
+  @IsEnum(DroneStatusEnum, { message: 'Invalid drone status' })
+  status: string;
+
+  @OneToMany(() => Medication, (medication) => medication.drone, {
     onDelete: 'SET NULL',
-    lazy: true,
+    nullable: true,
   })
   medications: Medication[];
 }

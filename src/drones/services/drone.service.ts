@@ -1,28 +1,32 @@
 import { Injectable } from '@nestjs/common';
-import { RegisterDroneDto } from '../dto/create-drone-dto';
+import { RegisterDroneDto } from '../dto/register-drone-dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Drone } from '../drone.entity';
 import { Repository } from 'typeorm';
+import { DroneModelEnum, DroneStatusEnum } from '../utils/enums';
 
 @Injectable()
-export class UsersService {
+export class DronesService {
   constructor(
-    @InjectRepository(Drone) private usersRepository: Repository<Drone>,
+    @InjectRepository(Drone) private dronesRepository: Repository<Drone>,
   ) {}
 
   create(registerDrone: RegisterDroneDto): Promise<Drone> {
-    const newUser = this.usersRepository.create(registerDrone);
-    return this.usersRepository.save(newUser);
+    const newDrone = this.dronesRepository.create(registerDrone);
+    return this.dronesRepository.save(newDrone);
   }
 
   findAll(): Promise<Drone[]> {
-    return this.usersRepository.find();
+    return this.dronesRepository.find();
   }
 
-  async findOne(id: string): Promise<Drone | { failed: string }> {
-    return this.usersRepository
+  async findOne(
+    serialNumber: string,
+    status?: DroneStatusEnum,
+  ): Promise<Drone | { failed: string }> {
+    return this.dronesRepository
       .findOneByOrFail({
-        id,
+        serialNumber,
       })
       .catch((err) => {
         console.error(err);
@@ -30,30 +34,36 @@ export class UsersService {
       });
   }
 
-  async remove(id: string): Promise<Drone | object> {
+  async remove(serialNumber: string): Promise<Drone | object> {
     try {
-      const Drone = await this.usersRepository.findOneByOrFail({ id });
-      return this.usersRepository.remove(Drone);
+      const Drone = await this.dronesRepository.findOneByOrFail({
+        serialNumber,
+      });
+      return this.dronesRepository.remove(Drone);
     } catch (error) {
       console.error(error);
       return { err: 'Error encountered while attempting to delete Drone' };
     }
   }
 
-  async loadDrone(id: string): Promise<Drone | object> {
+  async loadDrone(serialNumber: string): Promise<Drone | object> {
     try {
-      const Drone = await this.usersRepository.findOneByOrFail({ id });
-      return this.usersRepository.remove(Drone);
+      const Drone = await this.dronesRepository.findOneByOrFail({
+        serialNumber,
+      });
+      return this.dronesRepository.remove(Drone);
     } catch (error) {
       console.error(error);
       return { err: 'Error encountered while attempting to delete Drone' };
     }
   }
 
-  async checkBatteryLevel(id: string): Promise<Drone | object> {
+  async checkBatteryLevel(serialNumber: string): Promise<Drone | object> {
     try {
-      const Drone = await this.usersRepository.findOneByOrFail({ id });
-      return this.usersRepository.remove(Drone);
+      const Drone = await this.dronesRepository.findOneByOrFail({
+        serialNumber,
+      });
+      return this.dronesRepository.remove(Drone);
     } catch (error) {
       console.error(error);
       return { err: 'Error encountered while attempting to delete Drone' };

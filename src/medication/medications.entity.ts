@@ -29,5 +29,5 @@ export class Medication {
     onDelete: 'SET NULL',
     lazy: true,
   })
-  drones: Drone[];
+  drone: Drone;
 }

@@ -1,6 +1,6 @@
 export enum DroneStatusEnum {
   Lightweight = 'lightweight',
-  Cruisterweight = 'cruisterweight',
+  Cruiserweight = 'cruiserweight',
   Heavyweight = 'heavyweight',
 }
 
