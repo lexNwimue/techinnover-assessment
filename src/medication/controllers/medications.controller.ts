@@ -10,35 +10,60 @@ import {
   HttpStatus,
   Query,
   UploadedFile,
+  FileTypeValidator,
+  MaxFileSizeValidator,
+  ParseFilePipe,
+  UseInterceptors,
 } from '@nestjs/common';
 import { MedicationsService } from '../services/medications.service';
 import { CreateMedicationDto } from '../dto/medication.dto';
 import { Medication } from '../medications.entity';
-import { ParseImagePipe } from '../utils/validation.pipe';
+import { FileInterceptor } from '@nestjs/platform-express';
+import * as fs from 'fs';
 
 @Controller('medications')
 export class MedicationsController {
   constructor(private readonly medicationsService: MedicationsService) {}
 
   @Post()
+  @UseInterceptors(FileInterceptor('image'))
   async addMedication(
     @Body() createMedicationDto: CreateMedicationDto,
-    @UploadedFile(new ParseImagePipe()) file: Express.Multer.File,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new FileTypeValidator({ fileType: '.(png|jpeg|jpg|gif)' }),
+          new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 100 }), //100MB max. Can't live an unbounded file size
+        ],
+      }),
+    )
+    file: Express.Multer.File,
   ) {
-    console.log(createMedicationDto, file);
-    let pattern = /^[a-zA-Z0-9_-]+$/; //only letters, hyphen, underscore in name
-    if (!pattern.test(createMedicationDto.name)) {
-      return { error: 'Medication Name contains invalid character(s)' };
+    try {
+      let pattern = /^[a-zA-Z0-9_-]+$/; //only letters, hyphen, underscore in name
+      if (!pattern.test(createMedicationDto.name)) {
+        return { error: 'Medication Name contains invalid character(s)' };
+      }
+
+      pattern = /^[A-Z0-9_]+$/; //only UPPERCASE letters, numbers and underscore in code
+      if (!pattern.test(createMedicationDto.code)) {
+        return { error: 'Medication Code contains invalid character(s)' };
+      }
+
+      // Handle the file and save it with the medication code
+      const fileName = `${createMedicationDto.code}.${
+        file.mimetype.split('/')[1]
+      }`;
+      const filePath = `./upload/${fileName}`;
+      console.log(file);
+
+      // Save the file
+      fs.writeFileSync(filePath, file.path);
+
+      return this.medicationsService.addMedication(createMedicationDto);
+    } catch (error) {
+      return { error: error.message };
     }
-
-    pattern = /^[A-Z0-9_]+$/; //only uppercase letters, numbers, and underscore
-
-    if (!pattern.test(createMedicationDto.code)) {
-      return { error: 'Medication Code contains invalid character(s)' };
-    }
-    console.log(createMedicationDto, file.buffer.toString());
-
-    return this.medicationsService.addMedication(createMedicationDto);
   }
 
   @Get()

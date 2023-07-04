@@ -19,7 +19,7 @@ export class Medication {
   @Column()
   weight: number;
 
-  @Column()
+  @Column({ unique: true })
   code: string;
 
   @Column()

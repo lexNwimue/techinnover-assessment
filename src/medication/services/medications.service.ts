@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Medication } from '../medications.entity';
 import { Repository } from 'typeorm';
@@ -11,9 +11,24 @@ export class MedicationsService {
     private medicationsRepository: Repository<Medication>,
   ) {}
 
-  addMedication(addMedication: CreateMedicationDto): Promise<Medication> {
-    const newMedication = this.medicationsRepository.create(addMedication);
-    return this.medicationsRepository.save(newMedication);
+  async addMedication(addMedication: CreateMedicationDto): Promise<Medication> {
+    // Since we're using the medication code name as the uploaded image name,
+    // we could as well just eliminate storing an image field in the db
+    // because its just redundant. But for semantic simplicity
+    // we'd continue with that approach
+    try {
+      const isPresentAlready = await this.medicationsRepository.findOneBy({
+        code: addMedication.code,
+      });
+      if (isPresentAlready) {
+        throw new ConflictException('Medication Code already exists');
+      }
+      addMedication.image = addMedication.code;
+      const newMedication = this.medicationsRepository.create(addMedication);
+      return this.medicationsRepository.save(newMedication);
+    } catch (error) {
+      throw new ConflictException(error.message);
+    }
   }
 
   findAll(): Promise<Medication[]> {
