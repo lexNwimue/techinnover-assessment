@@ -36,37 +36,17 @@ export class MedicationsService {
   }
 
   async findOne(id: string): Promise<Medication | { failed: string }> {
-    return this.medicationsRepository
-      .findOneByOrFail({
+    try {
+      return this.medicationsRepository.findOneByOrFail({
         id,
-      })
-      .catch((err) => {
-        console.error(err);
-        return { failed: 'There was an error finding the Drone....' };
       });
+    } catch (error) {
+      console.error(error);
+      return { failed: 'There was an error finding the Drone....' };
+    }
   }
 
   async remove(id: string): Promise<Medication | object> {
-    try {
-      const Drone = await this.medicationsRepository.findOneByOrFail({ id });
-      return this.medicationsRepository.remove(Drone);
-    } catch (error) {
-      console.error(error);
-      return { err: 'Error encountered while attempting to delete Drone' };
-    }
-  }
-
-  async loadDrone(id: string): Promise<Medication | object> {
-    try {
-      const Drone = await this.medicationsRepository.findOneByOrFail({ id });
-      return this.medicationsRepository.remove(Drone);
-    } catch (error) {
-      console.error(error);
-      return { err: 'Error encountered while attempting to delete Drone' };
-    }
-  }
-
-  async checkBatteryLevel(id: string): Promise<Medication | object> {
     try {
       const Drone = await this.medicationsRepository.findOneByOrFail({ id });
       return this.medicationsRepository.remove(Drone);

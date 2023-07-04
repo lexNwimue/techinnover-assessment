@@ -8,7 +8,7 @@ import { ArgumentMetadata, Injectable, PipeTransform } from '@nestjs/common';
 export class ValidationPipe implements PipeTransform<any> {
   async transform(value: any, { metatype }: ArgumentMetadata) {
     value.weightLimit = +value?.weightLimit; // Parse numeric string weightLimit to number
-    value.batteryCapacity = +value?.batteryCapacity; // Parse numeric string batteryCapacity to number
+    value.batteryPercentage = +value?.batteryPercentage; // Parse numeric string batteryPercentage to number
 
     if (!metatype || !this.toValidate(metatype)) {
       return value;

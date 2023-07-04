@@ -6,5 +6,5 @@ export class RegisterDroneDto {
   model: string;
 
   @IsNumberString()
-  batteryCapacity: number;
+  batteryPercentage: number;
 }

@@ -16,7 +16,7 @@ export class Drone {
   currentWeight: number;
 
   @Column()
-  batteryCapacity: number;
+  batteryPercentage: number;
 
   @Column({ nullable: true, default: 'idle' as DroneStatusEnum })
   @IsEnum(DroneStatusEnum, { message: 'Invalid drone status' })
@@ -25,6 +25,7 @@ export class Drone {
   @OneToMany(() => Medication, (medication) => medication.drone, {
     onDelete: 'SET NULL',
     nullable: true,
+    eager: true,
   })
   medications: Medication[];
 }

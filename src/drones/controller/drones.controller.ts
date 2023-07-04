@@ -33,8 +33,8 @@ export class DronesController {
       return { error: 'Invalid model' };
     }
     if (
-      registerDroneDto.batteryCapacity < 0 ||
-      registerDroneDto.batteryCapacity > 100
+      registerDroneDto.batteryPercentage < 0 ||
+      registerDroneDto.batteryPercentage > 100
     ) {
       return { error: 'Battery capacity cannot be negative' };
     }
@@ -45,23 +45,61 @@ export class DronesController {
   }
 
   @Get()
-  findAll(): Promise<Drone[]> {
+  find(@Query('status') status: string): Promise<Drone[]> {
+    // confirm the status query is defined and valid
+    if (
+      typeof status === 'string' &&
+      !Object.values(DroneModelEnum).includes(status as DroneModelEnum)
+    ) {
+      return this.droneService.findAll(status);
+    }
     return this.droneService.findAll();
   }
 
-  @Get(':id')
-  findOne(
+  @Get('/available')
+  findAvailableDronesForLoading(): Promise<Drone[]> {
+    return this.droneService.findAvailableDronesForLoading();
+  }
+
+  @Put('/load-drone')
+  loadDroneWithMedication(@Body() reqBody: any): Promise<Drone> {
+    return this.droneService.loadDroneWithMedication(
+      reqBody.serialNumber,
+      reqBody.medicationID,
+    );
+  }
+
+  @Get('loaded-medications/:serialNumber')
+  checkLoadedMedication(
     @Param(
-      'id',
+      'serialNumber',
       new ParseUUIDPipe({ errorHttpStatusCode: HttpStatus.BAD_REQUEST }),
     )
-    id: string,
-    @Query('status') status: string,
+    serialNumber: string,
   ): Promise<Drone | object> {
-    if (typeof status === 'string') {
-      return this.droneService.findOne(id, status as DroneStatusEnum);
-    }
-    return this.droneService.findOne(id);
+    return this.droneService.checkLoadedMedication(serialNumber);
+  }
+
+  @Get('battery-level/:serialNumber')
+  checkBatteryLevel(
+    @Param(
+      'serialNumber',
+      new ParseUUIDPipe({ errorHttpStatusCode: HttpStatus.BAD_REQUEST }),
+    )
+    serialNumber: string,
+  ): Promise<Drone | object> {
+    return this.droneService.checkBatteryLevel(serialNumber);
+  }
+
+  @Get('id/:serialNumber')
+  findOne(
+    @Param(
+      'serialNumber',
+      new ParseUUIDPipe({ errorHttpStatusCode: HttpStatus.BAD_REQUEST }),
+    )
+    serialNumber: string,
+  ): Promise<Drone | object> {
+    return this.droneService.findOne(serialNumber);
   }
 
   @Delete(':id')
