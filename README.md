@@ -1,73 +1,66 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# NestJS Drone Service
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+This is a REST API service built with NestJS for managing a fleet of drones and their medication loads. DB: SQLite
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Assumptions
 
-## Description
+- **Weight Assumption:** The weight of the medication is assumed to be in kilograms (kg) as no weight unit field was specified.
+- **Serial Number Assumption:** The serial number is assumed to be the ID of the drone entity/table and would not be entered during registration.
+- **Drone Status Assumption:** The registered drone status can only be "IDLE" because no medication is assigned to it at that point.
+- **Unique Medication Code Assumption:** It is assumed that the medication code must be unique.
+- **No Effect of Medication on Drone Battery Assumption:** There is no assumed effect of medication on the drone's battery percentage.
+- **Finding Available Drones Assumption:** In finding available drones for loading, no specific conditions were specified. Hence, drones in the "IDLE", "RETURNING", and "DELIVERED" states are considered available.
+- **Implementations for changing Drone/Medication Details :** No requirements were stated to this effect hence this was not considered
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Project Details
 
-## Installation
+The project is a service that allows clients to communicate with drones via a REST API. It provides functionality for registering drones, loading medication items onto drones, checking loaded medication items for a given drone, checking available drones for loading, and checking the battery level of a given drone.
 
-```bash
-$ npm install
+### Drone Entity
+
+A Drone has the following properties:
+
+- Serial Number (up to 100 characters)
+- Model (Lightweight, Middleweight, Cruiserweight, Heavyweight)
+- Weight Limit (maximum 500kg)
+- Battery Capacity (percentage)
+- State (IDLE, LOADING, LOADED, DELIVERING, DELIVERED, RETURNING)
+
+### Medication Entity
+
+Each Medication has the following properties:
+
+- Name (letters, numbers, '-', '\_')
+- Weight (assumed to be in kilograms)
+- Code (uppercase letters, underscore, numbers)
+- Image (picture of the medication case)
+
+## Requirements
+
+### Functional Requirements
+
+- There is no need for a UI as this is a REST API service.
+- The service prevents loading a drone with more weight than it can carry.
+- The drone cannot be in the LOADING state if the battery level is below 25%.
+- A periodic task is introduced to check drone battery levels and create history/audit event logs for this.
+
+### Non-Functional Requirements
+
+- Input/output data must be in JSON format.
+- The project should be buildable and runnable.
+- The project includes a README file with build, run, and test instructions. It uses a DB that can be run locally, such as an in-memory database.
+- The required data must be preloaded in the database.
+- Unit tests are optional but advisable.
+- It is recommended to demonstrate your work through atomic commits in your commit history.
+
+## Build and Run Instructions
+
+1. Clone the repository:
+
+```shell
+git clone https://github.com/lexNwimue/techinnover-assessment.git
+
+cd techinnover-assessment
+npm install
+
 ```
-
-## Running the app
-
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
-```
-
-## Test
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
