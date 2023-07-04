@@ -9,18 +9,36 @@ import {
   ParseUUIDPipe,
   HttpStatus,
   Query,
+  UploadedFile,
 } from '@nestjs/common';
 import { MedicationsService } from '../services/medications.service';
 import { CreateMedicationDto } from '../dto/medication.dto';
 import { Medication } from '../medications.entity';
+import { ParseImagePipe } from '../utils/validation.pipe';
 
-@Controller('medication')
+@Controller('medications')
 export class MedicationsController {
   constructor(private readonly medicationsService: MedicationsService) {}
 
   @Post()
-  add(@Body() CreateMedicationDto: CreateMedicationDto): Promise<Medication> {
-    return this.medicationsService.create(CreateMedicationDto);
+  async addMedication(
+    @Body() createMedicationDto: CreateMedicationDto,
+    @UploadedFile(new ParseImagePipe()) file: Express.Multer.File,
+  ) {
+    console.log(createMedicationDto, file);
+    let pattern = /^[a-zA-Z0-9_-]+$/; //only letters, hyphen, underscore in name
+    if (!pattern.test(createMedicationDto.name)) {
+      return { error: 'Medication Name contains invalid character(s)' };
+    }
+
+    pattern = /^[A-Z0-9_]+$/; //only uppercase letters, numbers, and underscore
+
+    if (!pattern.test(createMedicationDto.code)) {
+      return { error: 'Medication Code contains invalid character(s)' };
+    }
+    console.log(createMedicationDto, file.buffer.toString());
+
+    return this.medicationsService.addMedication(createMedicationDto);
   }
 
   @Get()

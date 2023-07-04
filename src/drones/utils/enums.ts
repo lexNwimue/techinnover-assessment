@@ -1,10 +1,11 @@
-export enum DroneStatusEnum {
+export enum DroneModelEnum {
   Lightweight = 'lightweight',
+  Middleweight = 'middleweight',
   Cruiserweight = 'cruiserweight',
   Heavyweight = 'heavyweight',
 }
 
-export enum DroneModelEnum {
+export enum DroneStatusEnum {
   Idle = 'idle',
   Loading = 'loading',
   Loaded = 'loaded',

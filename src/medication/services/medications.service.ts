@@ -11,7 +11,7 @@ export class MedicationsService {
     private medicationsRepository: Repository<Medication>,
   ) {}
 
-  create(addMedication: CreateMedicationDto): Promise<Medication> {
+  addMedication(addMedication: CreateMedicationDto): Promise<Medication> {
     const newMedication = this.medicationsRepository.create(addMedication);
     return this.medicationsRepository.save(newMedication);
   }

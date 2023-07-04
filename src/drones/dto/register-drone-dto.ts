@@ -1,17 +1,10 @@
-import { IsString, IsInt } from 'class-validator';
+import { IsString, IsInt, IsNumberString } from 'class-validator';
 import { DroneModelEnum, DroneStatusEnum } from '../utils/enums';
 
 export class RegisterDroneDto {
   @IsString()
-  @IsString()
   model: string;
 
-  @IsInt()
-  weightLimit: number;
-
-  @IsInt()
+  @IsNumberString()
   batteryCapacity: number;
-
-  @IsString()
-  status: string;
 }

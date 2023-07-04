@@ -14,7 +14,7 @@ import { DronesService } from '../services/drone.service';
 import { RegisterDroneDto } from '../dto/register-drone-dto';
 import { Drone } from '../drone.entity';
 import { DroneModelEnum, DroneStatusEnum } from '../utils/enums';
-import { ValidationPipe } from '../validation.pipe';
+import { ValidationPipe } from '../utils/validation.pipe';
 
 @Controller('drones')
 export class DronesController {
@@ -23,12 +23,25 @@ export class DronesController {
   @Post()
   async register(
     @Body(new ValidationPipe()) registerDroneDto: RegisterDroneDto,
-  ): Promise<Drone | { error: string }> {
-    if (!(registerDroneDto.model in DroneModelEnum)) {
-      return { error: 'Invalid Model' };
+  ): Promise<Drone | object> {
+    console.log(registerDroneDto.model, DroneModelEnum.Middleweight);
+    if (
+      !Object.values(DroneModelEnum).includes(
+        registerDroneDto.model as DroneModelEnum,
+      )
+    ) {
+      return { error: 'Invalid model' };
     }
-    if (registerDroneDto.model)
-      return this.droneService.create(registerDroneDto);
+    if (
+      registerDroneDto.batteryCapacity < 0 ||
+      registerDroneDto.batteryCapacity > 100
+    ) {
+      return { error: 'Battery capacity cannot be negative' };
+    }
+    return {
+      success: 'Drone registered successfully',
+      data: await this.droneService.create(registerDroneDto),
+    };
   }
 
   @Get()

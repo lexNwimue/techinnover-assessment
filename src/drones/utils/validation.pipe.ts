@@ -1,5 +1,5 @@
 import { BadRequestException } from '@nestjs/common/exceptions';
-import { Drone } from './drone.entity';
+import { Drone } from '../drone.entity';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 import { ArgumentMetadata, Injectable, PipeTransform } from '@nestjs/common';

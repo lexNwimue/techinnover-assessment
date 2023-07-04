@@ -12,13 +12,13 @@ export class Drone {
   @IsEnum(DroneModelEnum, { message: 'Invalid drone model' })
   model: string;
 
-  @Column()
-  weightLimit: number;
+  @Column({ nullable: true, default: 0 })
+  currentWeight: number;
 
   @Column()
   batteryCapacity: number;
 
-  @Column()
+  @Column({ nullable: true, default: 'idle' as DroneStatusEnum })
   @IsEnum(DroneStatusEnum, { message: 'Invalid drone status' })
   status: string;
 
